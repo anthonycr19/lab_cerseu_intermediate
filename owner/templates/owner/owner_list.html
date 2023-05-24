@@ -1,10 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <p>Bienvenidos Pytohnistas!!</p>
-</body>
-</html>
+{% extends "owner/base_generic.html" %}
+
+"""
+Requerimientos:
+1. El mensaje en la plantilla debe decir: "Nombre" es "mayor o menor" de edad y de nacionalidad "País"
+2. Segundo mensaje será: "Su pase está vigente" o "Su pase ya no está vigente"
+"""
+
+{% block content %}
+<h1>Bienvenidos!!!</h1>
+    {% comment %}{% if nombre and edad %}
+        <h2>El owner existe!!</h2>
+
+        <p>Nombre: {{ nombre }}</p>
+        <p>Edad: {{ edad }} años</p>
+        <p>DNI: {{ dni }}</p>
+        <p>País: {{ pais }} </p>
+
+        {% if edad > 18 %}
+            <p>Usted ya es mayor de edad</p>
+        {% else %}
+            <p>Usted todavía no es mayor de edad</p>
+        {% endif %}
+
+        {% if dni %}
+            {% if not vigente %}
+                <p>Su pase está por vencer</p>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <h2>Todavía no hay ningún owner registrado</h2>
+    {% endif %}{% endcomment %}
+
+   {% comment %} {% for owner in data reversed %}
+        <li>
+            <p><strong>Nombre de Owner: </strong>{{ owner.nombre }}</p>
+            <p><strong>Edad: </strong>{{ owner.edad }}</p>
+            <p><strong>País: </strong>{{ owner.pais }}</p>
+        </li>
+    {% endfor %}{% endcomment %}
+
+    <div>
+        {% for owner in data %}
+            {% if owner.edad and owner.dni %}
+                <p><strong>Nombre de Owner: </strong>{{ owner.nombre }}</p>
+                <p><strong>Edad de owner: {{ owner.edad }}</strong></p>
+
+                {% if owner.pokemons %}
+                    Y tiene los siguientes pokemones: <br>
+                    {% for pokemon in owner.pokemons %}
+                        {{ pokemon.nombre_pokemon }},
+                        tiene los siguientes ataques, que son {{ pokemon.ataques | length }}:
+                        {% for ataque in pokemon.ataques %}
+                            {{ ataque }}
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    </div>
+
+
+
+
+    <button type="button" class="btn btn-primary">Pythonista</button>
+{% endblock %}
