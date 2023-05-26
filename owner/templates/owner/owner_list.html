@@ -39,10 +39,13 @@ Requerimientos:
         </li>
     {% endfor %}{% endcomment %}
 
-    <div>
+    {% comment %}<div>
         {% for owner in data %}
             {% if owner.edad and owner.dni %}
-                <p><strong>Nombre de Owner: </strong>{{ owner.nombre }}</p>
+                <p><strong>Nombre de Owner: </strong>{{ owner.nombre | lower }}</p>
+                <p><strong>Uso del Pipe Slugify (filtros): </strong>{{ owner.nombre | slugify }}</p>
+                <p><strong>Uso del Pipe Upper (filtros): </strong>{{ owner.nombre | upper }}</p>
+                <p><strong>Uso del Pipe Cut (filtros): </strong>{{ owner.nombre | cut:" " }}</p>
                 <p><strong>Edad de owner: {{ owner.edad }}</strong></p>
 
                 {% if owner.pokemons %}
@@ -57,8 +60,17 @@ Requerimientos:
                 {% endif %}
             {% endif %}
         {% endfor %}
+    </div>{% endcomment %}
+
+    <div>
+        {% for owner in data %}
+            {% if owner.nombre %}
+                <p>El Owner <strong>{{ owner.nombre }}</strong> tiene <strong>{{ owner.edad }}</strong> y proviene de {{ owner.pais }}</p>
+            {% endif %}
+        {% endfor %}
     </div>
 
+{#    <strong>{{ data.nombre }}</strong>#}
 
 
 

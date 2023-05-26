@@ -8,4 +8,4 @@ class OwnerAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'pais', 'vigente')
     list_filter = ('pais',)
     search_fields = ('nombre', 'pais')
-    fields = ('nombre', 'pais')
+    fields = ('nombre', 'pais', 'edad')
