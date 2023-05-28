@@ -1,6 +1,10 @@
+from django.db.models import F, Q
 from django.shortcuts import render
+
+from owner.forms import OwnerForm
 # Create your views here.
 from owner.models import Owner
+
 
 """
     Requisito:
@@ -110,12 +114,78 @@ def owner_list(request):
 
     """Acortar datos: Obtener un rango de registro de una tabla en la BD"""
 
-    data_context = Owner.objects.all()[0:5]
+    #data_context = Owner.objects.all()[0:5]
+    data_context = Owner.objects.all()
 
     """Eliminando un dato específicamente"""
 
     #data_context = Owner.objects.get(id=6)
     #data_context.delete()
 
+    """Actualización de datos en la BD a un cierto grupo de datos o un solo registro"""
+
+    #Owner.objects.filter(pais__startswith="Es").update(edad=25)
+
+    """Utilizando F expressions"""
+
+    #Owner.objects.filter(edad__lte=25).update(edad=F('edad') + 10)
+
+    """Consultas complejas"""
+
+    #query = Q(pais__startswith='Pe') | Q(pais__startswith='Es')
+    #data_context = Owner.objects.filter(query, edad=35)
+
+    """Negar Q"""
+
+    #query = Q(pais__startswith='Pe') & ~Q(edad=30)
+    #data_context = Owner.objects.filter(query)
+
+    query = Q(pais__startswith='Pe') | Q(pais__startswith='Es')
+    #data_context = Owner.objects.filter(query, edad=30)
+    data_context = Owner.objects.filter(query, edad__lte=30)
+
+    """Error de consulta con Q: no es válido"""
+
+    #query = Q(pais__startswith='Pe') | Q(pais__startswith='Es')
+    #data_context = Owner.objects.filter(edad=30, query)
+
     return render(request, 'owner/owner_list.html', context={'data': data_context})
+
+
+def owner_search(request):
+
+    query = request.GET.get('q', '')
+    print("Query: {}".format(query))
+
+    results = (
+        Q(nombre__icontains=query)
+    )
+    data_context = Owner.objects.filter(results)
+    #data_context = Owner.objects.filter(results).distinct()
+
+    return render(request, 'owner/owner_search.html', context={'data': data_context, 'query': query})
+
+
+def owner_details(request):
+    """Obtiene todos los elementos de una tabla de la BD"""
+    owners = Owner.objects.all()
+
+    return render(request, 'owner/owner_details.html', context={'data': owners})
+
+
+def owner_create(request):
+    form = OwnerForm(request.POST)
+
+    if form.is_valid():
+        nombre = form.cleaned_data['nombre']
+        edad = form.cleaned_data['edad']
+        pais = form.cleaned_data['pais']
+
+        form.save()
+
+    else:
+        form = OwnerForm()
+
+    return render(request, 'owner/owner_create.html', {'form': form})
+
 
