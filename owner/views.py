@@ -1,8 +1,12 @@
 from django.db.models import F, Q
-from django.shortcuts import render
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from owner.forms import OwnerForm
 # Create your views here.
+from django.core import serializers as ssr
 from owner.models import Owner
 
 
@@ -182,10 +186,70 @@ def owner_create(request):
         pais = form.cleaned_data['pais']
 
         form.save()
-
+        return redirect('owner_details')
     else:
         form = OwnerForm()
 
     return render(request, 'owner/owner_create.html', {'form': form})
 
 
+def owner_delete(request, id_owner):
+
+    print("ID Owner: {}".format(id_owner))
+    owner = Owner.objects.get(id=id_owner)
+    owner.delete()
+
+    return redirect('owner_details')
+
+
+def owner_edit(request, id_owner):
+    #print("ID de Owner a editar: {}".format(id_owner))
+    owner = Owner.objects.get(id=id_owner)
+    print("Datos del owner a editar: {}".format(owner))
+    form = OwnerForm(initial={'nombre': owner.nombre, 'edad': owner.edad, 'pais': owner.pais, 'dni': owner.dni})
+
+    if request.method == 'POST':
+        form = OwnerForm(request.POST, instance=owner)
+        if form.is_valid():
+            form.save()
+            return redirect('owner_details')
+
+    return render(request, 'owner/owner_update.html', context={'form': form})
+
+
+"""Vistas basadas en clases"""
+"""ListView, CreateView, UpdateView, DeleteView"""
+
+
+class OwnerList(ListView):
+    model = Owner
+    template_name = 'owner/owner_list_vc.html'
+
+
+class OwnerCreate(CreateView):
+    model = Owner
+    form_class = OwnerForm
+    template_name = 'owner/owner_create.html'
+    success_url = reverse_lazy('owner_list_vc')
+
+
+class OwnerUpdate(UpdateView):
+    model = Owner
+    form_class = OwnerForm
+    template_name = 'owner/owner_update_vc.html'
+    success_url = reverse_lazy('owner_list_vc')
+
+
+class OwnerDelete(DeleteView):
+    model = Owner
+    success_url = reverse_lazy('owner_list_vc')
+    template_name = 'owner/owner_confirm_delete.html'
+
+
+"""Serializers"""
+
+
+def ListOwnerSerializer(request):
+    lista_owner = ssr.serialize('json', Owner.objects.all(), fields=['nombre', 'pais', 'edad', 'dni'])
+
+    return HttpResponse(lista_owner, content_type="application/json")
