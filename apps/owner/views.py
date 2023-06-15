@@ -6,6 +6,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 
 from apps.owner.forms import OwnerForm
 # Create your views here.
@@ -258,13 +259,42 @@ def ListOwnerSerializer(request):
     return HttpResponse(lista_owner, content_type="application/json")
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def owner_api_view(request):
 
     if request.method == 'GET':
         print("Ingresó a GET")
         queryset = Owner.objects.all()
-        serializers_class = OwnerSerializer(queryset)
+        serializers_class = OwnerSerializer(queryset, many=True)
 
-    return Response(serializers_class.data)
+        return Response(serializers_class.data, status=status.HTTP_200_OK)
 
+    elif request.method == 'POST':
+        print("Data OWNER: {}".format(request.data))
+        serializers_class = OwnerSerializer(data=request.data)
+        if serializers_class.is_valid():
+            serializers_class.save()
+            return Response(serializers_class.data, status=status.HTTP_201_CREATED)
+        return Response(serializers_class.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def owner_details_view(request, pk):
+    owner = Owner.objects.filter(id=pk).first()
+
+    if owner:
+        if request.method == 'GET':
+            serializers_class = OwnerSerializer(owner)
+            return Response(serializers_class.data)
+
+        elif request.method == 'PUT':
+            serializers_class = OwnerSerializer(owner, data=request.data)
+
+            if serializers_class.is_valid():
+                serializers_class.save()
+                return Response(serializers_class.data)
+            return Response(serializers_class.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        elif request.method == 'DELETE':
+            owner.delete()
+            return Response('Owner ha sido eliminado correctamente de la BD', status=status.HTTP_200_OK)

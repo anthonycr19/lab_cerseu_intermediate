@@ -6,4 +6,4 @@ from apps.owner.models import Owner
 class OwnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Owner
-        fields = ('edad', 'pais', 'dni')
+        fields = ('nombre', 'edad', 'pais', 'dni')
