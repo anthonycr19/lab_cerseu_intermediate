@@ -1,13 +1,13 @@
-from django.db.models import F, Q
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from owner.forms import OwnerForm
+from apps.owner.forms import OwnerForm
 # Create your views here.
 from django.core import serializers as ssr
-from owner.models import Owner
+from apps.owner.models import Owner
 
 
 """
