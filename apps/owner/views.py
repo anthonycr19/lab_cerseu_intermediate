@@ -4,11 +4,14 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from apps.owner.forms import OwnerForm
 # Create your views here.
 from django.core import serializers as ssr
 from apps.owner.models import Owner
-
+from apps.owner.serializers import OwnerSerializer
 
 """
     Requisito:
@@ -253,3 +256,15 @@ def ListOwnerSerializer(request):
     lista_owner = ssr.serialize('json', Owner.objects.all(), fields=['nombre', 'pais', 'edad', 'dni'])
 
     return HttpResponse(lista_owner, content_type="application/json")
+
+
+@api_view(['GET'])
+def owner_api_view(request):
+
+    if request.method == 'GET':
+        print("Ingresó a GET")
+        queryset = Owner.objects.all()
+        serializers_class = OwnerSerializer(queryset)
+
+    return Response(serializers_class.data)
+
